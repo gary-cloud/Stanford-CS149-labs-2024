@@ -49,3 +49,4 @@ objs/
 mandelbrot
 myexp
 mandelbrot_ispc
+sqrt

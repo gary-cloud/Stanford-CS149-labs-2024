@@ -33,6 +33,16 @@ int main() {
         // array here to meet the instructions in the handout: we want
         // to you generate best and worse-case speedups
         
+        // Q2: best speedups (keep the number of iterations of elements as close as possible)
+        // values[i] = 2.999f;
+
+        // Q3: worst speedups (keep the number of iterations for each lane differ more)
+        // if (i % 8 == 0) {
+        //     values[i] = 2.999f;
+        // } else {
+        //     values[i] = 1.000f;
+        // }
+
         // starter code populates array with random input values
         values[i] = .001f + 2.998f * static_cast<float>(rand()) / RAND_MAX;
     }
