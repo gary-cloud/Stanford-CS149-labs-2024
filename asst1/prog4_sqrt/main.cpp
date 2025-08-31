@@ -9,6 +9,7 @@
 using namespace ispc;
 
 extern void sqrtSerial(int N, float startGuess, float* values, float* output);
+extern void sqrtAvx2(int N, float startGuess, float* values, float* output);
 
 static void verifyResult(int N, float* result, float* gold) {
     for (int i=0; i<N; i++) {
@@ -32,7 +33,7 @@ int main() {
         // TODO: CS149 students.  Attempt to change the values in the
         // array here to meet the instructions in the handout: we want
         // to you generate best and worse-case speedups
-        
+
         // Q2: best speedups (keep the number of iterations of elements as close as possible)
         // values[i] = 2.999f;
 
@@ -58,7 +59,11 @@ int main() {
     double minSerial = 1e30;
     for (int i = 0; i < 3; ++i) {
         double startTime = CycleTimer::currentSeconds();
-        sqrtSerial(N, initialGuess, values, output);
+        // sqrtSerial(N, initialGuess, values, output);
+
+        // my implementation
+        sqrtAvx2(N, initialGuess, values, output);
+
         double endTime = CycleTimer::currentSeconds();
         minSerial = std::min(minSerial, endTime - startTime);
     }
