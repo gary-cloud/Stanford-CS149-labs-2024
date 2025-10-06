@@ -53,4 +53,5 @@ sqrt
 saxpy
 kmeans
 generate_data
+data.dat
 *.log
