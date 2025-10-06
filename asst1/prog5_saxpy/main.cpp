@@ -27,12 +27,16 @@ static void verifyResult(int N, float* result, float* gold) {
 }
 
 using namespace ispc;
+namespace ispc {
+    extern void saxpy_ispc_withtasks_stream(int N, float scale, float* X, float* Y, float* result);
+}
 
 
 int main() {
 
     const unsigned int N = 20 * 1000 * 1000; // 20 M element vectors (~80 MB)
     const unsigned int TOTAL_BYTES = 4 * N * sizeof(float);
+    // const unsigned int TOTAL_BYTES_STREAM = 3 * N * sizeof(float); // stream version doesn't read result
     const unsigned int TOTAL_FLOPS = 2 * N;
 
     float scale = 2.f;
@@ -42,6 +46,11 @@ int main() {
     float* resultSerial = new float[N];
     float* resultISPC = new float[N];
     float* resultTasks = new float[N];
+    float *resultTasks_stream = nullptr;
+    if (posix_memalign((void**)&resultTasks_stream, 32, N * sizeof(float)) != 0) {
+        fprintf(stderr, "posix_memalign failed\n");
+        exit(1);
+    }
 
     // initialize array values
     for (unsigned int i=0; i<N; i++)
@@ -51,6 +60,7 @@ int main() {
         resultSerial[i] = 0.f;
         resultISPC[i] = 0.f;
         resultTasks[i] = 0.f;
+        resultTasks_stream[i] = 0.f;
     }
 
     //
@@ -106,7 +116,26 @@ int main() {
            toBW(TOTAL_BYTES, minTaskISPC),
            toGFLOPS(TOTAL_FLOPS, minTaskISPC));
 
+    // 
+    // Run the ISPC (multi-core + streaming store) implementation
+    //
+    double minTaskISPC_stream = 1e30;
+    for (int i = 0; i < 3; ++i) {
+        double startTime = CycleTimer::currentSeconds();
+        saxpy_ispc_withtasks_stream(N, scale, arrayX, arrayY, resultTasks_stream);
+        double endTime = CycleTimer::currentSeconds();
+        minTaskISPC_stream = std::min(minTaskISPC_stream, endTime - startTime);
+    }
+
+    verifyResult(N, resultTasks_stream, resultSerial);
+
+    printf("[saxpy task+stream ispc]:\t[%.3f] ms\t[%.3f] GB/s\t[%.3f] GFLOPS\n",
+           minTaskISPC_stream * 1000,
+           toBW(TOTAL_BYTES, minTaskISPC_stream),
+           toGFLOPS(TOTAL_FLOPS, minTaskISPC_stream));
+
     printf("\t\t\t\t(%.2fx speedup from use of tasks)\n", minISPC/minTaskISPC);
+    printf("\t\t\t\t(%.2fx speedup from use of tasks+stream)\n", minISPC/minTaskISPC_stream);
     //printf("\t\t\t\t(%.2fx speedup from ISPC)\n", minSerial/minISPC);
     //printf("\t\t\t\t(%.2fx speedup from task ISPC)\n", minSerial/minTaskISPC);
 

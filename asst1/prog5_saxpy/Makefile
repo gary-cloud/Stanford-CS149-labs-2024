@@ -22,7 +22,8 @@ dirs:
 clean:
 		/bin/rm -rf $(OBJDIR) *.ppm *~ $(APP_NAME)
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/saxpySerial.o $(OBJDIR)/saxpy_ispc.o $(TASKSYS_OBJ)
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/saxpySerial.o $(OBJDIR)/saxpy_stream.o $(OBJDIR)/saxpy_ispc.o $(TASKSYS_OBJ)
+# OBJS=$(OBJDIR)/main.o $(OBJDIR)/saxpySerial.o $(OBJDIR)/saxpy_ispc.o $(TASKSYS_OBJ)
 
 $(APP_NAME): dirs $(OBJS)
 		$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -lm $(TASKSYS_LIB)
@@ -32,6 +33,9 @@ $(OBJDIR)/%.o: %.cpp
 
 $(OBJDIR)/%.o: $(COMMONDIR)/%.cpp
 	$(CXX) $< $(CXXFLAGS) -c -o $@
+
+$(OBJDIR)/saxpy_stream.o: saxpy_stream.cpp
+	$(CXX) saxpy_stream.cpp $(CXXFLAGS) -mavx2 -mfma -c -o $(OBJDIR)/saxpy_stream.o
 
 $(OBJDIR)/main.o: $(OBJDIR)/$(APP_NAME)_ispc.h $(COMMONDIR)/CycleTimer.h
 
