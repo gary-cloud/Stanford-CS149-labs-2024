@@ -1,1 +1,11 @@
 # Stanford-CS149-labs-2024
+- asst1 ✔
+    - prog1_mandelbrot_threads ✔
+    - prog2_vecintrin ✔
+    - prog3_mandelbrot_ispc ✔
+    - prog4_sqrt ✔
+    - prog5_saxpy ✔
+    - prog6_kmeans ✔
+- asst2
+- asst3 
+- asst4
