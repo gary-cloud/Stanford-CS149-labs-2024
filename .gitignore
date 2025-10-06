@@ -50,3 +50,7 @@ mandelbrot
 myexp
 mandelbrot_ispc
 sqrt
+saxpy
+kmeans
+generate_data
+*.log
